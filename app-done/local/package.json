@@ -1,0 +1,18 @@
+{
+  "name": "local-execution-app",
+  "version": "1.0.0",
+  "description": "Local execution for smart home",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@google/local-home-sdk": "^0.1.0",
+    "@types/node": "^12.7.3",
+    "typescript": "^3.4.3",
+    "webpack": "^4.32.2",
+    "webpack-cli": "^3.3.2",
+    "ts-loader": "^6.0.2"
+  }
+}
