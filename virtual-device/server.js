@@ -45,15 +45,9 @@ const argv = require(`yargs`)
       demandOption: true,
       type: 'number',
     },
-    discoveryPortIn: {
-      description: 'Port to respond to UDP broadcasts.',
-      requiresArg: true,
-      demandOption: true,
-      type: 'number',
-    },
   })
   .example(
-    `$0 \\\n\t--deviceId=deviceid123 --discoveryPacket=HelloLocalHomeSDK \\\n\t--discoveryPortIn=3311 --discoveryPortOut=3312 \\\n\t --reportStateUrl="https://<project-id>.cloudfunctions.net/onOff"`
+    `$0 \\\n\t--deviceId=deviceid123 --discoveryPacket=HelloLocalHomeSDK \\\n\t--discoveryPortOut=3312 \\\n\t --reportStateUrl="https://<project-id>.cloudfunctions.net/updateState"`
   )
   .wrap(120)
   .help()
@@ -76,7 +70,7 @@ udpServer.on('message', (msg, rinfo) => {
     return;
   }
 
-  udpServer.send(argv.deviceId, argv.discoveryPortIn, rinfo.address, () => {
+  udpServer.send(argv.deviceId, rinfo.port, rinfo.address, () => {
     logger.info(`Done sending [${argv.deviceId}] to ${rinfo.address}:${
       argv.discoveryPortIn}`);
     logger.info(
