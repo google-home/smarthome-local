@@ -36,6 +36,85 @@ class Washer {
   }
 
   /**
+   * Turn on.
+   */
+  on() {
+    if (this._state.on === false) {
+      this.state = {
+        on: true,
+      };
+    }
+  }
+
+  /**
+   * Turn off.
+   */
+  off() {
+    if (this._state.on === true) {
+      this.state = {
+        on: false,
+        // also un-pause and stop the device.
+        isRunning: false,
+        isPaused: false,
+      };
+    }
+  }
+
+  /**
+   * Start new cycle.
+   */
+  start() {
+    if (this._state.on === true &&
+        this._state.isRunning === false) {
+      this.state = {
+        isRunning: true,
+        // also resume the device.
+        isPaused: false,
+      };
+    }
+  }
+
+  /**
+   * Stop current cycle.
+   */
+  stop() {
+    if (this._state.on === true &&
+        this._state.isRunning === true) {
+      this.state = {
+        isRunning: false,
+        // also un-pause the device.
+        isPaused: false,
+      };
+    }
+  }
+
+  /**
+   * Pause current cycle.
+   */
+  pause() {
+    if (this._state.on === true &&
+        this._state.isRunning === true &&
+        this._state.isPaused === false) {
+      this.state = {
+        isPaused: true,
+      };
+    }
+  }
+
+  /**
+   * Resume current cycle.
+   */
+  resume() {
+    if (this._state.on === true &&
+        this._state.isRunning === true &&
+        this._state.isPaused === true) {
+      this.state = {
+        isPaused: false,
+      };
+    }
+  }
+
+  /**
    * Update device state
    * @param {*} params Updated state attributes
    */

@@ -15,8 +15,14 @@
  */
 
 const dgram = require('dgram');
-const express = require('express');
 const logger = require('./logger');
+
+const COMMAND_OFF = 0x00;
+const COMMAND_ON = 0x01;
+const COMMAND_STOP = 0x02;
+const COMMAND_START = 0x03;
+const COMMAND_RESUME = 0x04;
+const COMMAND_PAUSE = 0x05;
 
 const Washer = require('./washer');
 const argv = require(`yargs`)
@@ -39,21 +45,19 @@ const argv = require(`yargs`)
       demandOption: true,
       type: 'string',
     },
-    discoveryPortOut: {
-      description: 'Port to listen for UDP broadcasts.',
+    udpPort: {
+      description: 'Port to listen for UDP broadcast and commands.',
       requiresArg: true,
       demandOption: true,
       type: 'number',
     },
   })
   .example(
-    `$0 \\\n\t--deviceId=deviceid123 --projectId=blue-jet-123 \\\n\t--discoveryPacket=HelloLocalHomeSDK --discoveryPortOut=3311`
+    `$0 \\\n\t--deviceId=deviceid123 --projectId=blue-jet-123 \\\n\t--discoveryPacket=HelloLocalHomeSDK --udpPort=3311`
   )
   .wrap(120)
   .help()
   .strict().argv;
-
-const SERVER_PORT = 3388;
 
 // Create a washer device
 const virtualDevice = new Washer(argv.projectId);
@@ -62,23 +66,46 @@ const virtualDevice = new Washer(argv.projectId);
 const udpServer = dgram.createSocket('udp4');
 
 udpServer.on('message', (msg, rinfo) => {
-  logger.info(`Got [${msg}] from ${rinfo.address}`);
+  logger.info(`Got [${msg.toString('hex')}] from ${rinfo.address}`);
 
-  if (msg != argv.discoveryPacket) {
-    logger.info(`The received message is not
-      the same as expected magic string [${argv.discoveryPacket}]`);
-    return;
-  }
-
-  udpServer.send(argv.deviceId, rinfo.port, rinfo.address, () => {
-    logger.info(`Done sending [${argv.deviceId}] to ${rinfo.address}:${
+  if (msg == argv.discoveryPacket) {
+    udpServer.send(argv.deviceId, rinfo.port, rinfo.address, () => {
+      logger.info(`Done sending [${argv.deviceId}] to ${rinfo.address}:${
       rinfo.port}`);
-    logger.info(
-      `Check console logs on your device via chrome://inspect.`);
-    logger.info(
-      `You should see IDENTIFY intent response with verificationId set to ${
+      logger.info(
+          `Check console logs on your device via chrome://inspect.`);
+      logger.info(
+          `You should see IDENTIFY intent response with verificationId set to ${
       argv.deviceId}`);
-  });
+    });
+  } else if (msg.length === 1) {
+    const cmd = msg[0];
+    switch (cmd) {
+      case COMMAND_OFF:
+        virtualDevice.off();
+        break;
+      case COMMAND_ON:
+        virtualDevice.on();
+        break;
+      case COMMAND_STOP:
+        virtualDevice.stop();
+        break;
+      case COMMAND_START:
+        virtualDevice.start();
+        break;
+      case COMMAND_RESUME:
+        virtualDevice.resume();
+        break;
+      case COMMAND_PAUSE:
+        virtualDevice.pause();
+        break;
+      default:
+        logger.error(`unsupported command: ${cmd}`);
+        break;
+    }
+  } else {
+    logger.error(`unrecognized message: ${msg.toString('hex')}`);
+  }
 });
 
 udpServer.on('error', (err) => {
@@ -86,20 +113,9 @@ udpServer.on('error', (err) => {
 });
 
 udpServer.on('listening', () => {
-  logger.info(`UDP Server listening on ${argv.discoveryPortOut}`);
+  logger.info(`UDP Server listening on ${argv.udpPort}`);
 });
 
 // Outbound port for Home device = the port the smart home device should
 // listen to
-udpServer.bind(argv.discoveryPortOut);
-
-// Start the HTTP server
-const server = express();
-server.use(express.json());
-server.post('/', function(req, res) {
-  logger.info(JSON.stringify(req.body, null, 2));
-  virtualDevice.state = req.body;
-  res.send('OK');
-});
-server.listen(SERVER_PORT,
-  () => logger.info(`Device listening on port ${SERVER_PORT}`));
+udpServer.bind(argv.udpPort);

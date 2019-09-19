@@ -23,7 +23,16 @@ import Execute = smarthome.Execute;
 import Intents = smarthome.Intents;
 import IntentFlow = smarthome.IntentFlow;
 
-const SERVER_PORT = 3388;
+const SERVER_PORT = 3311;
+
+enum Command {
+  Off = 0x00,
+  On = 0x01,
+  Stop = 0x02,
+  Start = 0x03,
+  Resume = 0x04,
+  Pause = 0x05,
+};
 
 interface IWasherParams {
   on?: boolean,
@@ -80,16 +89,13 @@ class LocalExecutionApp {
       const payload = this.getDataForCommand(execution.command, params);
 
       // Create a command to send over the local network
-      const radioCommand = new DataFlow.HttpRequestData();
+      const radioCommand = new DataFlow.UdpRequestData();
       radioCommand.requestId = request.requestId;
       radioCommand.deviceId = device.id;
-      radioCommand.data = JSON.stringify(payload);
-      radioCommand.dataType = 'application/json';
+      radioCommand.data = Buffer.from(payload).toString('hex');
       radioCommand.port = SERVER_PORT;
-      radioCommand.method = Constants.HttpOperation.POST;
-      radioCommand.isSecure = false;
 
-      console.log("Sending HTTP request to the smart home device:", payload);
+      console.log("Sending UDP request to the smart home device:", payload);
 
       return this.app.getDeviceManager()
         .send(radioCommand)
@@ -118,24 +124,17 @@ class LocalExecutionApp {
   /**
    * Convert execution request into a local device command
    */
-  getDataForCommand(command: string, params: IWasherParams): unknown {
+  getDataForCommand(command: string, params: IWasherParams): Uint8Array {
     switch (command) {
       case 'action.devices.commands.OnOff':
-        return {
-          on: params.on ? true : false
-        };
+        return new Uint8Array([params.on ? Command.On : Command.Off]);
       case 'action.devices.commands.StartStop':
-        return {
-          isRunning: params.start ? true : false
-        };
+        return new Uint8Array([params.start ? Command.Start : Command.Stop]);
       case 'action.devices.commands.PauseUnpause':
-        return {
-          isPaused: params.pause ? true : false
-        };
+        return new Uint8Array([params.pause ? Command.Pause : Command.Resume]);
       default:
-        console.error('Unknown command', command);
-        return {};
-    }
+        throw new Error(`Unknown command: ${command}`);
+    };
   }
 }
 
