@@ -72,7 +72,7 @@ udpServer.on('message', (msg, rinfo) => {
 
   udpServer.send(argv.deviceId, rinfo.port, rinfo.address, () => {
     logger.info(`Done sending [${argv.deviceId}] to ${rinfo.address}:${
-      argv.discoveryPortIn}`);
+      rinfo.port}`);
     logger.info(
       `Check console logs on your device via chrome://inspect.`);
     logger.info(

@@ -264,4 +264,4 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
   console.info(data);
 });
 
-// TODO: Add external endpoint for report state
+// TODO: Implement exports.updatestate to update Firebase DB from HTTP request
