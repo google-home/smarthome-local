@@ -27,8 +27,8 @@ const argv = require(`yargs`)
       demandOption: true,
       type: 'string',
     },
-    reportStateUrl: {
-      description: 'URL for cloud Report State endpoint.',
+    projectId: {
+      description: 'Google Actions project id.',
       requiresArg: true,
       demandOption: true,
       type: 'string',
@@ -47,7 +47,7 @@ const argv = require(`yargs`)
     },
   })
   .example(
-    `$0 \\\n\t--deviceId=deviceid123 --discoveryPacket=HelloLocalHomeSDK \\\n\t--discoveryPortOut=3312 \\\n\t --reportStateUrl="https://<project-id>.cloudfunctions.net/updateState"`
+    `$0 \\\n\t--deviceId=deviceid123 --projectId=blue-jet-123 \\\n\t--discoveryPacket=HelloLocalHomeSDK --discoveryPortOut=3311`
   )
   .wrap(120)
   .help()
@@ -56,7 +56,7 @@ const argv = require(`yargs`)
 const SERVER_PORT = 3388;
 
 // Create a washer device
-const virtualDevice = new Washer(argv.reportStateUrl);
+const virtualDevice = new Washer(argv.projectId);
 
 // Start the UDP server
 const udpServer = dgram.createSocket('udp4');

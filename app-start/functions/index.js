@@ -264,4 +264,19 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
   console.info('Report state response:', res.status, res.data);
 });
 
-// TODO: Implement exports.updatestate to update Firebase DB from HTTP request
+/**
+ * Update the current state of the washer device
+ */
+exports.updateState = functions.https.onRequest((request, response) => {
+  firebaseRef.child('washer').update({
+    OnOff: {
+      on: request.body.on,
+    },
+    StartStop: {
+      isPaused: request.body.isPaused,
+      isRunning: request.body.isRunning,
+    }
+  });
+
+  return response.status(200).end();
+});
