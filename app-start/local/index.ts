@@ -48,24 +48,17 @@ class LocalExecutionApp {
   /**
    * Convert execution request into a local device command
    */
-  getDataForCommand(command: string, params: IWasherParams): unknown {
+  getDataForCommand(command: string, params: IWasherParams): Uint8Array {
     switch (command) {
       case 'action.devices.commands.OnOff':
-        return {
-          on: params.on ? true : false
-        };
+        return new Uint8Array([params.on ? Command.On : Command.Off]);
       case 'action.devices.commands.StartStop':
-        return {
-          isRunning: params.start ? true : false
-        };
+        return new Uint8Array([params.start ? Command.Start : Command.Stop]);
       case 'action.devices.commands.PauseUnpause':
-        return {
-          isPaused: params.pause ? true : false
-        };
+        return new Uint8Array([params.pause ? Command.Pause : Command.Resume]);
       default:
-        console.error('Unknown command', command);
-        return {};
-    }
+        throw new Error(`Unknown command: ${command}`);
+    };
   }
 }
 
