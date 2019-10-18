@@ -23,10 +23,10 @@ const logger = require('./logger');
 class Washer {
   /**
    * Create a new washer instance
-   * @param {string} reportStateUrl Endpoint to publish state updates
+   * @param {string} projectId Endpoint to publish state updates
    */
-  constructor(reportStateUrl) {
-    this.reportStateEndpointUrl = reportStateUrl;
+  constructor(projectId) {
+    this.reportStateEndpointUrl = `https://${projectId}.firebaseapp.com/updateState`;
     this._state = {
       on: false,
       isRunning: false,

@@ -27,8 +27,8 @@ const argv = require(`yargs`)
       demandOption: true,
       type: 'string',
     },
-    reportStateUrl: {
-      description: 'URL for cloud Report State endpoint.',
+    projectId: {
+      description: 'Google Actions project id.',
       requiresArg: true,
       demandOption: true,
       type: 'string',
@@ -45,15 +45,9 @@ const argv = require(`yargs`)
       demandOption: true,
       type: 'number',
     },
-    discoveryPortIn: {
-      description: 'Port to respond to UDP broadcasts.',
-      requiresArg: true,
-      demandOption: true,
-      type: 'number',
-    },
   })
   .example(
-    `$0 \\\n\t--deviceId=deviceid123 --discoveryPacket=HelloLocalHomeSDK \\\n\t--discoveryPortIn=3311 --discoveryPortOut=3312 \\\n\t --reportStateUrl="https://<project-id>.cloudfunctions.net/onOff"`
+    `$0 \\\n\t--deviceId=deviceid123 --projectId=blue-jet-123 \\\n\t--discoveryPacket=HelloLocalHomeSDK --discoveryPortOut=3311`
   )
   .wrap(120)
   .help()
@@ -62,7 +56,7 @@ const argv = require(`yargs`)
 const SERVER_PORT = 3388;
 
 // Create a washer device
-const virtualDevice = new Washer(argv.reportStateUrl);
+const virtualDevice = new Washer(argv.projectId);
 
 // Start the UDP server
 const udpServer = dgram.createSocket('udp4');
@@ -76,9 +70,9 @@ udpServer.on('message', (msg, rinfo) => {
     return;
   }
 
-  udpServer.send(argv.deviceId, argv.discoveryPortIn, rinfo.address, () => {
+  udpServer.send(argv.deviceId, rinfo.port, rinfo.address, () => {
     logger.info(`Done sending [${argv.deviceId}] to ${rinfo.address}:${
-      argv.discoveryPortIn}`);
+      rinfo.port}`);
     logger.info(
       `Check console logs on your device via chrome://inspect.`);
     logger.info(
