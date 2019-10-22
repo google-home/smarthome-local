@@ -23,7 +23,16 @@ import Execute = smarthome.Execute;
 import Intents = smarthome.Intents;
 import IntentFlow = smarthome.IntentFlow;
 
-const SERVER_PORT = 3388;
+const SERVER_PORT = 3311;
+
+enum Command {
+  Off = 0x00,
+  On = 0x01,
+  Stop = 0x02,
+  Start = 0x03,
+  Resume = 0x04,
+  Pause = 0x05,
+};
 
 interface IWasherParams {
   on?: boolean,
