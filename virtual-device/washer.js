@@ -26,7 +26,7 @@ class Washer {
    * @param {string} projectId Endpoint to publish state updates
    */
   constructor(projectId) {
-    this.reportStateEndpointUrl = `https://${projectId}.firebaseapp.com/updateState`;
+    this.reportStateEndpointUrl = `https://${projectId}.firebaseapp.com/updatestate`;
     this._state = {
       on: false,
       isRunning: false,
