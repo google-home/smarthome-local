@@ -23,8 +23,8 @@ COMMAND_START = 0x03
 COMMAND_RESUME = 0x04
 COMMAND_PAUSE = 0x05
 
-BACKGROUND = 0x222222
-WATER = 0xDDDDFF
+BACKGROUND = 0xFFFFFF
+WATER = 0x9999FF
 POWER_ON = 0x00ff00
 RUNNING_ON = 0xff0000
 POWER_OFF = RUNNING_OFF = 0x555555
@@ -41,6 +41,7 @@ class Washer(object):
   updated = True
 
   def __init__(self):
+    lcd.tft_writecmd(0x21) # invert color
     lcd.orient(lcd.LANDSCAPE_FLIP)
     lcd.clear(BACKGROUND)
     lcd.arc(160, 120, 90, 90, 0, 180, WATER, WATER)
