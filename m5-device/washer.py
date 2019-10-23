@@ -187,12 +187,12 @@ def connect(ssid, key):
   print()
   print(wlan.ifconfig())
 
-def loop(washer, deviceId='deviceid123', port=3311, project_id=None):
+def loop(washer, device_id, udp_port, project_id=None):
   import usocket
   s = usocket.socket(usocket.AF_INET, usocket.SOCK_DGRAM)
   s.setblocking(False)
-  s.bind(('0.0.0.0', port))
-  print('listening on port:', port)
+  s.bind(('0.0.0.0', udp_port))
+  print('listening on port:', udp_port)
   import utime
   from struct import unpack
   import urequests
@@ -201,7 +201,7 @@ def loop(washer, deviceId='deviceid123', port=3311, project_id=None):
       packet, addr = s.recvfrom(32)
       print('received packet:', packet)
       if packet == DISCOVERY_PACKET:
-        s.sendto(deviceId, addr)
+        s.sendto(device_id, addr)
       elif len(packet) == 1:
         (cmd,) = unpack('@B', packet)
         if cmd == COMMAND_OFF:
