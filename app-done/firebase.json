@@ -8,8 +8,8 @@
       "source": "/requestsync",
       "function": "requestsync"
     }, {
-      "source": "/updateState",
-      "function": "updateState"
+      "source": "/updatestate",
+      "function": "updatestate"
     }],
     "ignore": [
       "firebase.json",
