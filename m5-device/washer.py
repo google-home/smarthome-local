@@ -231,7 +231,7 @@ def loop(washer, deviceId='deviceid123', port=3311, project_id=None):
       utime.sleep_ms(10)
     if washer.changed and project_id:
       print('reporting state update')
-      result = urequests.request("POST", 'http://us-central1-%s.cloudfunctions.net/updateState' % project_id, data='{"on":%s,"isRunning":%s,"isPaused":%s}' % (
+      result = urequests.request("POST", 'https://%s.firebaseapp.com/updatestate' % project_id, data='{"on":%s,"isRunning":%s,"isPaused":%s}' % (
           washer.powered and 'true' or 'false',
           washer.started and 'true' or 'false',
           washer.paused and 'true' or 'false'
