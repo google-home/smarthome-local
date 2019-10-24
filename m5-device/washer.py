@@ -178,6 +178,7 @@ class Washer(object):
 
     def listen(self, udp_port, device_id, project_id=None):
         import struct
+        import ujson
         import urequests
         import usocket
         import utime
@@ -185,6 +186,11 @@ class Washer(object):
         s.setblocking(False)
         s.bind(('0.0.0.0', udp_port))
         print('listening on port:', udp_port)
+        report_state_url = (
+            'https://%s.firebaseapp.com/updatestate' % project_id
+            if project_id
+            else None
+        )
         while True:
             try:
                 packet, addr = s.recvfrom(32)
@@ -217,16 +223,16 @@ class Washer(object):
                     print('unrecognized packet:', packet)
             except OSError:
                 utime.sleep_ms(10)
-            if self.changed and project_id:
+            if self.changed and report_state_url:
                 print('reporting state update')
                 result = urequests.request(
                     'POST',
-                    'https://%s.firebaseapp.com/updatestate' % project_id,
-                    data='{"on":%s,"isRunning":%s,"isPaused":%s}' % (
-                        self.powered and 'true' or 'false',
-                        self.started and 'true' or 'false',
-                        self.paused and 'true' or 'false'
-                    ),
+                    report_state_url,
+                    data=ujson.dumps({
+                        "on": self.powered,
+                        "isRunning": self.started,
+                        "isPaused": self.paused
+                    }),
                     headers={'Content-Type': 'application/json'}
                 ).content
                 if result != b'':
