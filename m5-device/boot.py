@@ -16,5 +16,7 @@
 import sys
 sys.path[1] = '/flash/lib'
 
-from washer import *
+from washer import Washer
 washer = Washer()
+
+import wifi

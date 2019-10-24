@@ -174,67 +174,53 @@ class Washer(object):
     self.d = 0
     self.updated = True
 
-def connect(ssid, key):
-  import network
-  import utime
-  wlan = network.WLAN(network.STA_IF)
-  wlan.active(True)
-  wlan.connect(ssid, key)
-  print('connecting')
-  import sys
-  while not wlan.isconnected():
-    sys.stdout.write('.')
-    utime.sleep_ms(100)
-  print()
-  print(wlan.ifconfig())
-
-def loop(washer, device_id, udp_port, project_id=None):
-  import usocket
-  s = usocket.socket(usocket.AF_INET, usocket.SOCK_DGRAM)
-  s.setblocking(False)
-  s.bind(('0.0.0.0', udp_port))
-  print('listening on port:', udp_port)
-  import utime
-  from struct import unpack
-  import urequests
-  while True:
-    try:
-      packet, addr = s.recvfrom(32)
-      print('received packet:', packet)
-      if packet == DISCOVERY_PACKET:
-        s.sendto(device_id, addr)
-      elif len(packet) == 1:
-        (cmd,) = unpack('@B', packet)
-        if cmd == COMMAND_OFF:
-          print('off command received')
-          washer.off()
-        elif cmd == COMMAND_ON:
-          print('on command received')
-          washer.on()
-        elif cmd == COMMAND_STOP:
-          print('stop command received')
-          washer.stop()
-        elif cmd == COMMAND_START:
-          print('start command received')
-          washer.start()
-        elif cmd == COMMAND_RESUME:
-          print('resume command received')
-          washer.resume()
-        elif cmd == COMMAND_PAUSE:
-          print('pause command received')
-          washer.pause()
+  def listen(self, udp_port, device_id, project_id=None):
+    import struct
+    import urequests
+    import usocket
+    import utime
+    s = usocket.socket(usocket.AF_INET, usocket.SOCK_DGRAM)
+    s.setblocking(False)
+    s.bind(('0.0.0.0', udp_port))
+    print('listening on port:', udp_port)
+    while True:
+      try:
+        packet, addr = s.recvfrom(32)
+        print('received packet:', packet)
+        if packet == DISCOVERY_PACKET:
+          s.sendto(device_id, addr)
+        elif len(packet) == 1:
+          (cmd,) = struct.unpack('@B', packet)
+          if cmd == COMMAND_OFF:
+            print('off command received')
+            self.off()
+          elif cmd == COMMAND_ON:
+            print('on command received')
+            self.on()
+          elif cmd == COMMAND_STOP:
+            print('stop command received')
+            self.stop()
+          elif cmd == COMMAND_START:
+            print('start command received')
+            self.start()
+          elif cmd == COMMAND_RESUME:
+            print('resume command received')
+            self.resume()
+          elif cmd == COMMAND_PAUSE:
+            print('pause command received')
+            self.pause()
+          else:
+            print('unrecognized command:', cmd)
         else:
-          print('unrecognized command:', cmd)
-      else:
-        print('unrecognized packet:', packet)
-    except OSError as e:
-      utime.sleep_ms(10)
-    if washer.changed and project_id:
-      print('reporting state update')
-      result = urequests.request("POST", 'https://%s.firebaseapp.com/updatestate' % project_id, data='{"on":%s,"isRunning":%s,"isPaused":%s}' % (
-          washer.powered and 'true' or 'false',
-          washer.started and 'true' or 'false',
-          washer.paused and 'true' or 'false'
-      ), headers={'Content-Type':'application/json'}).content
-      if result != b'':
-        print('error reporting state update:', result)
+          print('unrecognized packet:', packet)
+      except OSError as e:
+        utime.sleep_ms(10)
+      if self.changed and project_id:
+        print('reporting state update')
+        result = urequests.request("POST", 'https://%s.firebaseapp.com/updatestate' % project_id, data='{"on":%s,"isRunning":%s,"isPaused":%s}' % (
+            self.powered and 'true' or 'false',
+            self.started and 'true' or 'false',
+            self.paused and 'true' or 'false'
+        ), headers={'Content-Type':'application/json'}).content
+        if result != b'':
+          print('error reporting state update:', result)
