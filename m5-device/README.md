@@ -39,7 +39,7 @@ UDP server.
 ```
 screen /dev/ttyUSB0
 >>> connect('my-ssid', 'my-password') # connect to WiFi
->>> loop(washer, 3311, 'project-id') # start networking loop
+>>> loop(washer, 'deviceid123', 3311, 'project-id') # start networking loop
 ```
 > Note: If the colors on the washer display are inverted, use the following
 command to correct them: `lcd.tft_writecmd(0x21)`
