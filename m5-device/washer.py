@@ -14,8 +14,6 @@
 
 from m5stack import lcd, machine, buttonA, buttonB, buttonC
 
-DISCOVERY_PACKET = b'HelloLocalHomeSDK'
-
 COMMAND_OFF = 0x00
 COMMAND_ON = 0x01
 COMMAND_STOP = 0x02
@@ -176,7 +174,7 @@ class Washer(object):
         self.d = 0
         self.updated = True
 
-    def listen(self, udp_port, device_id, project_id=None):
+    def listen(self, udp_port, device_id, discovery_packet=b'HelloLocalHomeSDK', project_id=None):
         import struct
         import ujson
         import urequests
@@ -195,7 +193,7 @@ class Washer(object):
             try:
                 packet, addr = s.recvfrom(32)
                 print('received packet:', packet)
-                if packet == DISCOVERY_PACKET:
+                if packet == discovery_packet:
                     s.sendto(device_id, addr)
                 elif len(packet) == 1:
                     (cmd,) = struct.unpack('@B', packet)
