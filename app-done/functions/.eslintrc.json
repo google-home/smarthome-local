@@ -1,10 +1,13 @@
 {
-    "parserOptions": {
-      "ecmaVersion": 7,
-      "sourceType": "script"
-    },
-    "extends": ["google"],
-    "env": {
-      "node": true
-    }
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "script"
+  },
+  "extends": ["google"],
+  "rules": {
+    "no-unused-vars": "warn"
+  },
+  "env": {
+    "node": true
   }
+}
