@@ -11,11 +11,6 @@
       "source": "/updatestate",
       "function": "updatestate"
     }],
-    "ignore": [
-      "firebase.json",
-      "database-rules.json",
-      "functions"
-    ],
     "headers": [{
       "source" : "**/*.@(js|html)",
       "headers" : [ {

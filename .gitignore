@@ -1,13 +1,9 @@
-**/key.json
+**/node_modules
 **/package-lock.json
 **/firebase-debug.log
-**/node_modules
-**/bower_components
-**/*.bak
+**/.firebaserc
+**/.firebase
 
+**/functions/key.json
+**/local/dist
 **/public/local-home
-**/dist
-
-.idea
-.firebase/
-.firebaserc
